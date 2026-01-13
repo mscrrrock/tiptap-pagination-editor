@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { EditorContent, useEditor } from '@tiptap/react';
 import type { Editor } from '@tiptap/core';
-import { getDefaultExtensions, DEFAULT_CONTENT } from '../lib/editor-config';
+import { getDefaultExtensions} from '../lib/editor-config';
 import EditorToolbar from './EditorToolbar';
 
 /**
@@ -17,12 +17,12 @@ import EditorToolbar from './EditorToolbar';
  * - Measurements must happen after layout updates; we use requestAnimationFrame when recalculating
  */
 
-export default function RichTextEditor({ initialContent = DEFAULT_CONTENT }: { initialContent?: string }) {
+export default function RichTextEditor({ initialContent = "", }: { initialContent?: string }) {
   // Initialize editor with options from a separate module.
   // Keeping all TipTap imports inside client components prevents accidental server bundling.
   const editor = useEditor({
     extensions: getDefaultExtensions(),
-    content: initialContent,
+    content: "",
     editorProps: {
       attributes: { class: 'editor-content focus:outline-none' },
     },
