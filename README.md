@@ -1,17 +1,48 @@
-# tiptap-pagination-editor
+# Tiptap Pagination Editor — Prototype
 
-Minimal Next.js 14 + TypeScript prototype with Tailwind CSS and Tiptap editor.
+This project is a prototype document editor built using **Next.js** and **Tiptap**, focused on print-accurate pagination, clean UX, and a maintainable architecture.
 
-Quick start:
+---
 
-1. Install dependencies
+## Approach to Page Breaks
 
-   npm install
+The editor uses a **single continuous editing surface** instead of simulating physical page breaks in JavaScript.
 
-2. Start dev server
+Pagination is handled by the browser at print time using CSS:
 
-   npm run dev
+```css
+@page {
+  size: Letter;
+  margin: 1in;
+}
+->Why this approach?
+Browsers already handle pagination accurately for print.
 
-Notes:
-- Editor is client-only; we load it with dynamic import ({ ssr: false }) from `app/page.tsx`.
-- The editor logic (extensions, default content) lives in `lib/editor-config.ts` to keep UI and logic separated.
+Text wrapping, fonts, spacing, and images behave exactly as they will in the final printed output.
+
+Avoids fragile JavaScript-based height calculations that often drift from real print layout.
+
+This ensures that what the user edits is exactly what gets printed, without maintaining multiple document representations.
+
+->Trade-offs and Limitations
+Page breaks are not visually rendered during editing.
+
+Page numbers are not calculated on screen.
+
+The editor behaves as a continuous document (similar to Google Docs), rather than a paged Word-style view.
+
+These trade-offs were made deliberately to prioritize correctness, simplicity, and long-term maintainability.
+
+->What I Would Improve With More Time
+Optional visual page guides to indicate approximate print boundaries.
+
+CSS-based page numbers rendered only at print time.
+
+More advanced toolbar UX (active formatting states, keyboard shortcut hints).
+
+Support for document templates (resume, report, essay).
+
+Summary
+This prototype prioritizes a single source of truth for layout and pagination.
+By delegating pagination to print CSS instead of duplicating layout logic in JavaScript, the editor remains predictable, accurate, and easy to extend.
+
