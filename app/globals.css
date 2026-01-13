@@ -1,0 +1,87 @@
+.ProseMirror {
+  outline: none;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Placeholder styling (screen-only). Uses `data-placeholder` + `.is-editor-empty`
+   so it is purely presentational and never becomes document content. */
+.ProseMirror.is-editor-empty::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+  display: block;
+  height: 0;
+}
+
+.ProseMirror p {
+  margin: 0.5rem 0;
+}
+
+.ProseMirror h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+}
+
+.ProseMirror h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0.75rem 0 0.5rem;
+}
+
+@media print {
+  .hidden-print {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+    margin: 0;
+  }
+
+
+  /* Hide toolbar and page chrome */
+  .editor-toolbar, .left-rail, h1, nav { display: none !important; }
+
+  /* Remove page shadows */
+  .page {
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
+  .editor-content {
+  margin-top: 0 !important;
+}
+
+  /* Ensure correct page size */
+  @page {
+    size: Letter;
+    margin: 1in;
+  }
+
+  /* Prevent weird breaks */
+  p, h1, h2, h3, li {
+    page-break-inside: avoid;
+  }
+
+  /* Hide placeholder pseudo-element in print so it does not appear in PDF */
+  .ProseMirror:empty::before {
+    display: none !important;
+    content: none !important;
+  }
+  /* ===== FIX EDITOR TOP OFFSET (CRITICAL) ===== */
+.editor-content > *:first-child {
+  margin-top: 0 !important;
+}
+.editor-content {
+  line-height: 1.6;
+  font-size: 16px;
+}
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #9ca3af;
+  pointer-events: none;
+  height: 0;
+}
+}

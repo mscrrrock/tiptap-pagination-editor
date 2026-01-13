@@ -1,0 +1,218 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Basic readable editor styles */
+:root {
+  --editor-bg: #fff;
+  --editor-border: #e5e7eb; /* gray-200 */
+}
+
+html, body, #__next {
+  height: 100%;
+}
+
+body {
+  @apply bg-gray-50 text-slate-900;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+/* Tiptap / Editor container */
+.editor-container {
+  @apply bg-white border rounded-md shadow-sm p-4;
+  border-color: var(--editor-border);
+}
+
+.editor-content {
+  min-height: 12rem;
+  outline: none;
+  line-height: 1.6;
+}
+
+/* Basic mark styles */
+.editor-content :where(strong, b) {
+  font-weight: 700;
+}
+.editor-content :where(em, i) {
+  font-style: italic;
+}
+
+/* Small toolbar */
+.editor-toolbar {
+  @apply flex gap-2 mb-3;
+}
+.editor-toolbar button {
+  @apply px-3 py-1 rounded border bg-gray-100 text-sm;
+}
+.editor-toolbar button[data-active="true"] {
+  @apply bg-sky-600 text-white border-sky-600;
+}
+
+/* Page shadow (subtle) */
+.shadow-page {
+  /* Tailwind shadow can be adjusted; use a soft custom shadow for more control */
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+  border: 1px solid rgba(0,0,0,0.04);
+}
+
+/* Pages canvas: subtle background behind pages (does not affect pages themselves) */
+.pages-canvas {
+  background-color: #f8fafc; /* subtle gray */
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+}
+
+/* Page outer wrapper - spacing placed outside the page element so it does not
+   affect measured page height (pagination uses page inner dimensions only). */
+.page-outer {
+  margin-bottom: 0; /* spacing is handled by PageSeparator to avoid internal breaks */
+  display: flex;
+  justify-content: center;
+}
+
+/* Page element: physical sheet model
+   - Fixed size and padding are applied inline in `Page.tsx` using the
+     canonical constants from `lib/print.ts`. The following CSS ensures the
+     browser respects a single-sheet model and prevents accidental breaks inside
+     a page.
+   - We use page-break-after/break-after so printed output follows the same
+     stacking of pages as on screen. */
+.page {
+  box-sizing: border-box;
+  display: block;
+  /* Prevent the browser from inserting a page break inside a page */
+  break-inside: avoid;
+  page-break-inside: avoid;
+  /* Force a page break after each page so printed pages align with boxes */
+  break-after: page;
+  page-break-after: always;
+}
+
+/* Page separator (screen-only): subtle centered line between pages. It is
+   layout-only and intentionally does not overlap page content. */
+.page-separator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 0;
+  pointer-events: none;
+}
+.page-separator-line {
+  width: 60%;
+  height: 2px;
+  background: rgba(0,0,0,0.12);
+  border-radius: 2px;
+}
+
+/* Page gutter guides (screen-only): small horizontal ticks rendered in the
+   left/right page gutters so they NEVER intersect text and do not affect layout. */
+.page-guide {
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+/* Left rail (fixed): formatting controls that remain visible while scrolling.
+   Positioned outside the document width so it never overlaps content and is
+   hidden in print to avoid affecting printed page margins. */
+.left-rail {
+  position: fixed;
+  z-index: 60;
+}
+
+/* Hide left rail on smaller screens to avoid crowding the viewport */
+@media (max-width: 900px) {
+  .left-rail { display: none; }
+}
+
+/* Helper class to hide UI in print */
+.hidden-print { display: block; }
+
+
+
+/* Page numbers are not shown on screen — pagination is print-only. */
+/* If needed for print-only footers, render them in print styles or HTML templates. */
+
+/* Preview content inside a Page */
+.page-preview-content {
+  /* ensure the preview area fills the content box and hides overflow */
+  position: relative;
+}
+
+/* Clipped viewport approach for pages (single editor snapshot translated) */
+.page-viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.editor-snapshot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  pointer-events: none; /* read-only visuals */
+  user-select: none;
+}
+
+/* Editor container for the live editor */
+.page-editor-container {
+  /* Allow the editor to grow naturally within the document container */
+  min-height: 100px;
+  width: 100%;
+}
+
+/* Focus affordance: subtle outline when the editor or any child is focused. */
+.page-editor-container:focus-within {
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.08);
+  border-radius: 8px;
+}
+
+/* Hide placeholder visuals in print */
+@media print {
+  .ProseMirror.is-editor-empty::before { display: none !important; }
+}
+
+
+/* Oversized block indicator (when a block is larger than a page) */
+.oversized-block {
+  box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.15);
+}
+.oversized-badge {
+  pointer-events: none;
+}
+
+/* Print safety: keep layout identical between screen and print.
+   - Use @page to specify Letter size and 1in margin (matches PAGE_* constants).
+   - Do NOT remove or adjust page padding/margins here — pages are responsible
+     for their own padding so that screen layout equals printed layout.
+   - Only visual-only changes are allowed (remove shadows/background). */
+
+@page {
+  /* Use the named size and 1in margin for reliable print pagination. We rely
+     on browser-native pagination for printing (no on-screen simulation). */
+  size: Letter;
+  margin: 1in;
+}
+
+@media print {
+  /* Ensure document canvas is white and browser body margin doesn't add extra space */
+  body, .pages-canvas {
+    background: white !important;
+    margin: 0 !important;
+  }
+
+  /* Remove drop shadows for printing; do not change spacing */
+  .shadow-page {
+    box-shadow: none !important;
+    border-color: transparent !important;
+  }
+
+  /* Hide screen-only guides and toolbars in print (also hide left rail and any fixed controls) */
+  .page-separator, .page-guide, .editor-toolbar, .left-rail, .hidden-print { display: none !important; }
+}
+
+/* Master editor inside the page flow - make sure it's readable */
+.editor-content.paged-master {
+  min-height: 6rem;
+}
